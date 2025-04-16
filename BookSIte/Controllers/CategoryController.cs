@@ -1,23 +1,28 @@
-﻿using BookSIte.Data;
+﻿using BookSite.DataAccess.Repository.Category;
 using BookStore.Models;
 using Microsoft.AspNetCore.Mvc;
+using Category = BookStore.Models.Category;
+
+
+
 
 namespace BookSIte.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly Context _Context;
+        
+        private readonly ICategoryRepo _category;
 
-        public CategoryController(Context Context)
+        public CategoryController(ICategoryRepo category)
         {
-            _Context = Context;
+            _category = category;
             
         }
 
 
         public IActionResult Index()
         {
-            var Categorys = _Context.Category.ToList();
+            var Categorys = _category.GetAll();
             return View(Categorys);
         }
 
@@ -32,8 +37,8 @@ namespace BookSIte.Controllers
         {
             if (ModelState.IsValid)
             {
-                    _Context.Category.Add(CAT);
-                    _Context.SaveChanges();
+                     _category.Add(CAT);
+                     _category.savechanges();
                      TempData["Create"] = "New Category Added";
                      return  RedirectToAction("Index");
 
@@ -47,7 +52,7 @@ namespace BookSIte.Controllers
             {
                 return NotFound(); 
             }
-            var Category = _Context.Category.Find(id);
+            var Category = _category.Get( a=> a.Id == id);
             return View(Category);
         }
         [HttpPost]
@@ -56,8 +61,8 @@ namespace BookSIte.Controllers
            
             if (ModelState.IsValid)
             {
-                _Context.Category.Update(category);
-                _Context.SaveChanges();
+                _category.Update(category);
+                _category.savechanges();
                 TempData["Update"] = $"Category Has Updateded";
                 return RedirectToAction("Index");
 
@@ -72,10 +77,10 @@ namespace BookSIte.Controllers
             {
                 return NotFound();
             }
-            var Category = _Context.Category.Find(id);
+            var Category = _category.Get(a=> a.Id == id );
             TempData["Delete"] = $"{Category.Name} Has Deleteded";
-            _Context.Category.Remove(Category);
-            _Context.SaveChanges();
+            _category.Remove(Category);
+            _category.savechanges();
             return RedirectToAction("Index");
         }
     }

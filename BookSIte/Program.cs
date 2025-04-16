@@ -1,4 +1,5 @@
 
+using BookSite.DataAccess.Repository.Category;
 using BookSIte.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<Context>
     (options => options.UseSqlServer
     (builder.Configuration.GetConnectionString("DefualtConnection")));
+
+builder.Services.AddScoped<ICategoryRepo , CategoryRepo>();
 
 var app = builder.Build();
 
