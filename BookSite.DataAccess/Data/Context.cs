@@ -1,4 +1,4 @@
-﻿using BookSIte.Models;
+﻿using BookStore.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookSIte.Data

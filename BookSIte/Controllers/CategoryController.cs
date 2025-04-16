@@ -1,5 +1,5 @@
 ﻿using BookSIte.Data;
-using BookSIte.Models;
+using BookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSIte.Controllers
