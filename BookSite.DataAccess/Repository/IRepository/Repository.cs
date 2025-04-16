@@ -50,10 +50,7 @@ namespace BookSite.DataAccess.Repository.IRepository
             dbset.RemoveRange(entity);
         }
 
-        public void savechanges()
-        {
-            _Context.SaveChanges();
-        }
+        
     }
 
     

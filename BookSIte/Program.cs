@@ -1,5 +1,6 @@
 
 using BookSite.DataAccess.Repository.Category;
+using BookSite.DataAccess.Repository.Unitofwork;
 using BookSIte.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ builder.Services.AddDbContext<Context>
     (options => options.UseSqlServer
     (builder.Configuration.GetConnectionString("DefualtConnection")));
 
-builder.Services.AddScoped<ICategoryRepo , CategoryRepo>();
+builder.Services.AddScoped<IUnitOfWork , UnitOfWork>();
 
 var app = builder.Build();
 
@@ -33,6 +34,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
