@@ -1,4 +1,5 @@
 ﻿using BookSite.DataAccess.Repository.Category;
+using BookSite.DataAccess.Repository.ProductRepository;
 using BookSIte.Data;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
     {
         private readonly Context _Context;
         public ICategoryRepo CategoryRepo { get; private set; }
+        public IProductRepo ProductRepo { get; private set; }
 
         public UnitOfWork(Context Context)
         {
@@ -19,6 +21,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
         
             _Context = Context;
             CategoryRepo = new CategoryRepo(Context);
+            ProductRepo = new ProductRepo(Context);
 
         }
 
