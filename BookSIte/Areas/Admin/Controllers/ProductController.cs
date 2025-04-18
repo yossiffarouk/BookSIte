@@ -123,18 +123,41 @@ namespace BookSIte.Areas.Admin.Controllers
         //    return View();
         //}
 
-
+        [HttpDelete]
         public IActionResult Delete(int id)
         {
-            if (id == null)
+            var proudecttodelete = _Unit.ProductRepo.Get(a=>a.Id == id);
+            if (proudecttodelete == null)
             {
-                return NotFound();
+                return Json(new { success = false , message = "erorrrrr"});
             }
-            var Product = _Unit.ProductRepo.Get(a => a.Id == id);
-            TempData["Delete"] = $"{Product.Title} Has Deleteded";
-            _Unit.ProductRepo.Remove(Product);
+
+
+            var oldimagepath = Path.Combine(_WebHostEnvironment.WebRootPath, proudecttodelete.ImageUrl.TrimStart('\\'));
+
+            if (System.IO.File.Exists(oldimagepath))
+            {
+                System.IO.File.Delete(oldimagepath);
+            }
+           
+            TempData["Delete"] = $"{proudecttodelete.Title} Has Deleteded";
+            _Unit.ProductRepo.Remove(proudecttodelete);
             _Unit.savechanges();
-            return RedirectToAction("Index");
+            return Json(new { success = true, message = TempData["Delete"] });
         }
+
+
+
+
+
+        public IActionResult getall()
+        {
+            var Products = _Unit.ProductRepo.GetAll(includeproperty: "Category");
+            return Json(new {data = Products });
+        }
+
+
+
+
     }
 }
