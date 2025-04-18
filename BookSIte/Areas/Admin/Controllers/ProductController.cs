@@ -4,6 +4,7 @@ using BookStore.Models;
 using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Tokens;
 using Category = BookStore.Models.Category;
 
 
@@ -16,22 +17,23 @@ namespace BookSIte.Areas.Admin.Controllers
     {
 
         private readonly IUnitOfWork _Unit;
+        private readonly IWebHostEnvironment _WebHostEnvironment;
 
-        public ProductController(IUnitOfWork Unit)
+        public ProductController(IUnitOfWork Unit, IWebHostEnvironment webHostEnvironment)
         {
             _Unit = Unit;
-
+            _WebHostEnvironment = webHostEnvironment;
         }
 
 
         public IActionResult Index()
         {
-            var Products = _Unit.ProductRepo.GetAll();
+            var Products = _Unit.ProductRepo.GetAll(includeproperty : "Category");
             return View(Products);
         }
 
 
-        public IActionResult Create()
+        public IActionResult Upsert()
         {
             ProductVM ProductVM = new()
             {
@@ -46,13 +48,45 @@ namespace BookSIte.Areas.Admin.Controllers
             return View(ProductVM);
         }
         [HttpPost]
-        public IActionResult Create(ProductVM ProductVM)
+        public IActionResult Upsert(ProductVM ProductVM , IFormFile? file)
         {
+
             if (ModelState.IsValid)
             {
+                string wwwrootpath = _WebHostEnvironment.WebRootPath;
+                string filename = Guid.NewGuid().ToString() + Path.GetExtension(wwwrootpath);
+                string productPath = Path.Combine(wwwrootpath, @"images\product");
+
+                if (!string.IsNullOrEmpty(ProductVM.Product.ImageUrl))
+                {
+                    var oldimagepath = Path.Combine(wwwrootpath, ProductVM.Product.ImageUrl.TrimStart('\\'));
+
+                    if (System.IO.File.Exists(oldimagepath))
+                    {
+                        System.IO.File.Delete(oldimagepath);
+                    }
+                }
+                using (var filestrme = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
+                {
+                    file.CopyTo(filestrme);
+                }
+
+                ProductVM.Product.ImageUrl = @"\images\product" + filename;
+
+
+
+                if (ProductVM.Product.Id == 0)
+                {
                 _Unit.ProductRepo.Add(ProductVM.Product);
-                _Unit.savechanges();
                 TempData["Create"] = "New Product Added";
+
+                }
+                else
+                {
+                    _Unit.ProductRepo.Update(ProductVM.Product);
+                    TempData["Update"] = $"Product Has Updateded";
+                }
+                _Unit.savechanges();
                 return RedirectToAction("Index");
 
             }
@@ -65,29 +99,29 @@ namespace BookSIte.Areas.Admin.Controllers
             return View(ProductVM);
         }
 
-        public IActionResult Edit(int id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var Product = _Unit.ProductRepo.Get(a => a.Id == id);
-            return View(Product);
-        }
-        [HttpPost]
-        public IActionResult Edit(Product Product)
-        {
+        //public IActionResult Edit(int id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var Product = _Unit.ProductRepo.Get(a => a.Id == id);
+        //    return View(Product);
+        //}
+        //[HttpPost]
+        //public IActionResult Edit(Product Product)
+        //{
 
-            if (ModelState.IsValid)
-            {
-                _Unit.ProductRepo.Update(Product);
-                _Unit.savechanges();
-                TempData["Update"] = $"Product Has Updateded";
-                return RedirectToAction("Index");
+        //    if (ModelState.IsValid)
+        //    {
+        //        _Unit.ProductRepo.Update(Product);
+        //        _Unit.savechanges();
+        //        TempData["Update"] = $"Product Has Updateded";
+        //        return RedirectToAction("Index");
 
-            }
-            return View();
-        }
+        //    }
+        //    return View();
+        //}
 
 
         public IActionResult Delete(int id)

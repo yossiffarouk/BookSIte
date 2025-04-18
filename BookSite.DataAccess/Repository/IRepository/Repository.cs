@@ -26,17 +26,25 @@ namespace BookSite.DataAccess.Repository.IRepository
            dbset.Add(entity);
         }
 
-        public T Get(Expression<Func<T, bool>> Filter)
+        public T Get(Expression<Func<T, bool>> Filter , string? includeproperty)
         {
             IQueryable<T> query = dbset;
-            
+            if (!string.IsNullOrEmpty(includeproperty))
+            {
+                query = query.Include(includeproperty);
+            }
+
             return query.FirstOrDefault(Filter);
 
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(string? includeproperty)
         {
             IQueryable<T> query = dbset;
+            if (!string.IsNullOrEmpty(includeproperty))
+            {
+                query = query.Include(includeproperty);
+            }
             return query.ToList();
         }
 
