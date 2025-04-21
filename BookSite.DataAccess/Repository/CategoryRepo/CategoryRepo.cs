@@ -21,6 +21,9 @@ namespace BookSite.DataAccess.Repository.Category
             
         }
 
-       
+        public void Update(BookStore.Models.Category obj)
+        {
+            _Context.Update(obj);
+        }
     }
 }

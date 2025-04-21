@@ -10,6 +10,6 @@ namespace BookSite.DataAccess.Repository.ProductRepository
 {
     public interface IProductRepo : IRepository<Product>
     {
-
+        void Update(Product obj);
     }
 }

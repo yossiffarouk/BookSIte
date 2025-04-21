@@ -20,5 +20,29 @@ namespace BookSite.DataAccess.Repository.ProductRepository
 
         }
 
+        public void Update(Product obj)
+        {
+            var product = _Context.Products.FirstOrDefault(a=>a.Id == obj.Id);
+
+
+            if (product != null)
+            {
+                product.Title = obj.Title;
+                product.Description = obj.Description;
+                product.ISBN = obj.ISBN;
+                product.CategoryId = obj.CategoryId;
+                product.Author = obj.Author;
+                product.ListPrice = obj.ListPrice;
+                product.Price = obj.Price;
+                product.Price50 = obj.Price50;
+                product.Price100 = obj.Price100;
+
+                if (obj.ImageUrl != null)
+                {
+                    product.ImageUrl = obj.ImageUrl;
+                }
+
+            }
+        }
     }
 }

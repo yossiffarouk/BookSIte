@@ -11,7 +11,6 @@ namespace BookSite.DataAccess.Repository.Category
 {
     public interface ICategoryRepo : IRepository<BookStore.Models.Category>
     {
-       // =
-                                                         // > look here BookStore.Models
+        void Update(BookStore.Models.Category obj);
     }
 }

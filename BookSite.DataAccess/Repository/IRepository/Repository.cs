@@ -57,10 +57,7 @@ namespace BookSite.DataAccess.Repository.IRepository
         {
             dbset.RemoveRange(entity);
         }
-        public void Update(T entity)
-        {
-            dbset.Update(entity);
-        }
+        
 
     }
 

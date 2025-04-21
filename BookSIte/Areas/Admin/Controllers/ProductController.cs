@@ -33,7 +33,7 @@ namespace BookSIte.Areas.Admin.Controllers
         }
 
 
-        public IActionResult Upsert()
+        public IActionResult Upsert(int? id )
         {
             ProductVM ProductVM = new()
             {
@@ -44,41 +44,53 @@ namespace BookSIte.Areas.Admin.Controllers
                 }),
                 Product = new Product(),
             };
+            if (id ==null || id == 0)
+            {
+                return View(ProductVM);
 
+            }
+
+            ProductVM.Product = _Unit.ProductRepo.Get(a => a.Id == id);
             return View(ProductVM);
+
         }
         [HttpPost]
-        public IActionResult Upsert(ProductVM ProductVM , IFormFile? file)
+        public IActionResult Upsert(ProductVM ProductVM, IFormFile? file)
         {
 
             if (ModelState.IsValid)
             {
                 string wwwrootpath = _WebHostEnvironment.WebRootPath;
-                string filename = Guid.NewGuid().ToString() + Path.GetExtension(wwwrootpath);
-                string productPath = Path.Combine(wwwrootpath, @"images\product");
-
-                if (!string.IsNullOrEmpty(ProductVM.Product.ImageUrl))
+                if (file != null)
                 {
-                    var oldimagepath = Path.Combine(wwwrootpath, ProductVM.Product.ImageUrl.TrimStart('\\'));
 
-                    if (System.IO.File.Exists(oldimagepath))
+
+                    string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwrootpath, @"images\product");
+
+                    if (!string.IsNullOrEmpty(ProductVM.Product.ImageUrl))
                     {
-                        System.IO.File.Delete(oldimagepath);
-                    }
-                }
-                using (var filestrme = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
-                {
-                    file.CopyTo(filestrme);
-                }
+                        var oldimagepath = Path.Combine(wwwrootpath, ProductVM.Product.ImageUrl.TrimStart('\\'));
 
-                ProductVM.Product.ImageUrl = @"\images\product" + filename;
+                        if (System.IO.File.Exists(oldimagepath))
+                        {
+                            System.IO.File.Delete(oldimagepath);
+                        }
+                    }
+                    using (var filestrme = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
+                    {
+                        file.CopyTo(filestrme);
+                    }
+
+                    ProductVM.Product.ImageUrl = @"\images\product\" + filename;
+                }
 
 
 
                 if (ProductVM.Product.Id == 0)
                 {
-                _Unit.ProductRepo.Add(ProductVM.Product);
-                TempData["Create"] = "New Product Added";
+                    _Unit.ProductRepo.Add(ProductVM.Product);
+                    TempData["Create"] = "New Product Added";
 
                 }
                 else
@@ -90,38 +102,16 @@ namespace BookSIte.Areas.Admin.Controllers
                 return RedirectToAction("Index");
 
             }
-            ProductVM.Category =  _Unit.CategoryRepo.GetAll().Select(a => new SelectListItem
-                {
-                    Text = a.Name,
-                    Value = a.Id.ToString()
-                });
+            ProductVM.Category = _Unit.CategoryRepo.GetAll().Select(a => new SelectListItem
+            {
+                Text = a.Name,
+                Value = a.Id.ToString()
+            });
 
             return View(ProductVM);
         }
 
-        //public IActionResult Edit(int id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var Product = _Unit.ProductRepo.Get(a => a.Id == id);
-        //    return View(Product);
-        //}
-        //[HttpPost]
-        //public IActionResult Edit(Product Product)
-        //{
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        _Unit.ProductRepo.Update(Product);
-        //        _Unit.savechanges();
-        //        TempData["Update"] = $"Product Has Updateded";
-        //        return RedirectToAction("Index");
-
-        //    }
-        //    return View();
-        //}
 
         [HttpDelete]
         public IActionResult Delete(int id)
