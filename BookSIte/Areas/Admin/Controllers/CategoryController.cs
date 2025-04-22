@@ -1,6 +1,8 @@
-﻿using BookSite.DataAccess.Repository.Category;
+﻿using BookkStore.Utility;
+using BookSite.DataAccess.Repository.Category;
 using BookSite.DataAccess.Repository.Unitofwork;
 using BookStore.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Category = BookStore.Models.Category;
 
@@ -10,6 +12,7 @@ using Category = BookStore.Models.Category;
 namespace BookSIte.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = SD.Role_User_Admin)]
     public class CategoryController : Controller
     {
 

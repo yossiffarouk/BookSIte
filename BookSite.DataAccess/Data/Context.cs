@@ -1,9 +1,11 @@
 ﻿using BookStore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookSIte.Data
 {
-    public class Context : DbContext
+    public class Context : IdentityDbContext<IdentityUser>
     {
 
         public Context(DbContextOptions<Context> options) : base(options)
@@ -16,6 +18,9 @@ namespace BookSIte.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Category>().HasData(
                 new Category { Id = 1 , Name = "Action", OrderNumber = 1 },
                 new Category { Id = 2, Name = "History", OrderNumber = 2 },
