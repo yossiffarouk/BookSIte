@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookSite.DataAccess.Repository.CompanyRepository
+namespace BookSite.DataAccess.Repository.ApplicationRepository
 {
-    public interface ICompanyRepo : IRepository<Company>
+    public interface IApplicationRepo : IRepository<ApplicationsUser>
     {
-        void Update(Company obj);
+        void Update(ApplicationsUser obj);
     }
 }

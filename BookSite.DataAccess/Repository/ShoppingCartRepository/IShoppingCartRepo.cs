@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookSite.DataAccess.Repository.CompanyRepository
+namespace BookSite.DataAccess.Repository.ShoppinCartRepository
 {
-    public interface ICompanyRepo : IRepository<Company>
+    public interface IShoppinCartRepo : IRepository<ShoppigCart>
     {
-        void Update(Company obj);
+       
     }
 }

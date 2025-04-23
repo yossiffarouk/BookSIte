@@ -1,5 +1,7 @@
 ﻿using BookSite.DataAccess.Repository.Category;
+using BookSite.DataAccess.Repository.CompanyRepository;
 using BookSite.DataAccess.Repository.ProductRepository;
+using BookSite.DataAccess.Repository.ShoppinCartRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
         ICategoryRepo CategoryRepo { get;  }
         IProductRepo ProductRepo { get;  }
         ICompanyRepo CompanyRepo { get;  }
+        IShoppinCartRepo ShoppinCartRepo { get;  }
 
         void savechanges();
     }

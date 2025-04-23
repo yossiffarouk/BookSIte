@@ -7,20 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookSite.DataAccess.Repository.CompanyRepository
+namespace BookSite.DataAccess.Repository.ApplicationRepository
 {
-    public class CompanyRepo : Repository<Company> , ICompanyRepo
+    public class ApplicationRepo : Repository<ApplicationsUser> , IApplicationRepo
     {
         private readonly Context _Context;
 
-        public CompanyRepo(Context Context) : base(Context)
+        public ApplicationRepo(Context Context) : base(Context)
         {
 
             _Context = Context;
 
         }
 
-        public void Update(Company obj)
+        public void Update(ApplicationsUser obj)
         {
             _Context.Update(obj);
 

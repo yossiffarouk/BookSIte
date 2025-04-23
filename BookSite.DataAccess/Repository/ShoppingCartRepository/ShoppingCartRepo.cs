@@ -7,24 +7,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookSite.DataAccess.Repository.CompanyRepository
+namespace BookSite.DataAccess.Repository.ShoppinCartRepository
 {
-    public class CompanyRepo : Repository<Company> , ICompanyRepo
+    public class ShoppinCartRepo : Repository<ShoppigCart> , IShoppinCartRepo
     {
         private readonly Context _Context;
 
-        public CompanyRepo(Context Context) : base(Context)
+        public ShoppinCartRepo(Context Context) : base(Context)
         {
 
             _Context = Context;
 
         }
 
-        public void Update(Company obj)
-        {
-            _Context.Update(obj);
-
-            
-        }
+     
     }
 }

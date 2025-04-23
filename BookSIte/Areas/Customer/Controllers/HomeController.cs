@@ -27,8 +27,15 @@ namespace BookSIte.Areas.Customer.Controllers
         }
         public IActionResult Details(int id) 
         {
-            var product = _unit.ProductRepo.Get( a=>a.Id==id ,includeproperty: "Category");
-            return View(product);
+            ShoppigCart shoppigCart = new ShoppigCart()
+            {
+                Product = _unit.ProductRepo.Get(a => a.Id == id, includeproperty: "Category"),
+                Count = 1,
+                ProductId = id
+            };
+        
+            
+            return View(shoppigCart);
         }
 
         public IActionResult Privacy()
