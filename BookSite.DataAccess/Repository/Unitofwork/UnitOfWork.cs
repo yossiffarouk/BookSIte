@@ -13,6 +13,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
     {
         private readonly Context _Context;
         public ICategoryRepo CategoryRepo { get; private set; }
+        public ICompanyRepo CompanyRepo { get; private set; }
         public IProductRepo ProductRepo { get; private set; }
 
         public UnitOfWork(Context Context)
@@ -22,6 +23,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
             _Context = Context;
             CategoryRepo = new CategoryRepo(Context);
             ProductRepo = new ProductRepo(Context);
+            CompanyRepo = new CompanyRepo(Context);
 
         }
 

@@ -12,6 +12,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
     {
         ICategoryRepo CategoryRepo { get;  }
         IProductRepo ProductRepo { get;  }
+        ICompanyRepo CompanyRepo { get;  }
 
         void savechanges();
     }
