@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace BookSite.DataAccess.Repository.ShoppinCartRepository
 {
-    public interface IShoppinCartRepo : IRepository<ShoppigCart>
+    public interface IShoppinCartRepo : IRepository<ShoppingCart>
     {
-       
+       void Update(ShoppingCart shoppingCart);
     }
 }

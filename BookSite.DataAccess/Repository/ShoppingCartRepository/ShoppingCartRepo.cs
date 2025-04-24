@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BookSite.DataAccess.Repository.ShoppinCartRepository
 {
-    public class ShoppinCartRepo : Repository<ShoppigCart> , IShoppinCartRepo
+    public class ShoppinCartRepo : Repository<ShoppingCart> , IShoppinCartRepo
     {
         private readonly Context _Context;
 
@@ -20,6 +20,9 @@ namespace BookSite.DataAccess.Repository.ShoppinCartRepository
 
         }
 
-     
+        public void Update(ShoppingCart shoppingCart)
+        {
+            _Context.Update(shoppingCart);
+        }
     }
 }

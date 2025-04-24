@@ -16,7 +16,7 @@ namespace BookSIte.Data
         public DbSet<Category> Category { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Company> Companies { get; set; }
-        public DbSet<ShoppigCart> ShoppigCarts { get; set; }
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public DbSet<ApplicationsUser> ApplicationsUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

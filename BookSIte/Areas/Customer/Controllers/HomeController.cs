@@ -1,7 +1,9 @@
 using BookSite.DataAccess.Repository.Unitofwork;
 using BookStore.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace BookSIte.Areas.Customer.Controllers
 {
@@ -27,7 +29,7 @@ namespace BookSIte.Areas.Customer.Controllers
         }
         public IActionResult Details(int id) 
         {
-            ShoppigCart shoppigCart = new ShoppigCart()
+            ShoppingCart shoppigCart = new ShoppingCart()
             {
                 Product = _unit.ProductRepo.Get(a => a.Id == id, includeproperty: "Category"),
                 Count = 1,
@@ -36,6 +38,33 @@ namespace BookSIte.Areas.Customer.Controllers
         
             
             return View(shoppigCart);
+        }
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShoppingCart shoppigCart)
+        {
+            var ClaimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+            shoppigCart.ApplicationsUserId = userId;
+
+
+            var cartfromdb = _unit.ShoppinCartRepo.Get(a=>a.ApplicationsUserId == userId && a.ProductId == shoppigCart.ProductId);
+            if (cartfromdb != null)
+            {
+                cartfromdb.Count += shoppigCart.Count;
+                _unit.ShoppinCartRepo.Update(cartfromdb);
+            }
+            else
+            {
+                _unit.ShoppinCartRepo.Add(shoppigCart);
+
+            }
+
+            _unit.savechanges();   
+
+
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Privacy()
