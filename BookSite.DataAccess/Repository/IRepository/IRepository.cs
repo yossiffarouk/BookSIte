@@ -9,7 +9,7 @@ namespace BookSite.DataAccess.Repository.IRepository
 {
     public interface IRepository<T> where T : class
     {
-        IEnumerable<T> GetAll(string? includeproperty = null);
+        IEnumerable<T> GetAll(string? includeproperty = null, Expression<Func<T, bool>>? Filterv = null);
         T Get(Expression<Func<T ,bool>> Filterv , string? includeproperty = null);
         void Add(T entity);
         void Remove(T entity);

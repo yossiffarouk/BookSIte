@@ -42,6 +42,7 @@ namespace BookSIte.Areas.Customer.Controllers
         [HttpPost]
         [Authorize]
         public IActionResult Details(ShoppingCart shoppigCart)
+        
         {
             var ClaimIdentity = (ClaimsIdentity)User.Identity;
             var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;

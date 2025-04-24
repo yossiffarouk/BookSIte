@@ -38,9 +38,13 @@ namespace BookSite.DataAccess.Repository.IRepository
 
         }
 
-        public IEnumerable<T> GetAll(string? includeproperty)
+        public IEnumerable<T> GetAll(string ? includeproperty, Expression<Func<T, bool>>? Filterv = null)
         {
             IQueryable<T> query = dbset;
+            if (Filterv != null)
+            {
+                query = dbset.Where(Filterv);
+            }
             if (!string.IsNullOrEmpty(includeproperty))
             {
                 query = query.Include(includeproperty);
