@@ -42,12 +42,14 @@ namespace BookSIte.Areas.Customer.Controllers
         [HttpPost]
         [Authorize]
         public IActionResult Details(ShoppingCart shoppigCart)
-        
         {
             var ClaimIdentity = (ClaimsIdentity)User.Identity;
             var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             shoppigCart.ApplicationsUserId = userId;
+
+            // there error here cheack it , if i remove this line it will lead to cant savechange in db cause of id
+            shoppigCart.Id = 0;
 
 
             var cartfromdb = _unit.ShoppinCartRepo.Get(a=>a.ApplicationsUserId == userId && a.ProductId == shoppigCart.ProductId);

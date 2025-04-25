@@ -12,8 +12,8 @@ namespace BookSIte.Areas.Customer.Controllers
     {
         private readonly IUnitOfWork _unit;
 
-
-        public CartController(IUnitOfWork unit)
+		public ShoppingCartVM ShoppingCartVM { get; set; }
+		public CartController(IUnitOfWork unit)
         {
            
             _unit = unit;
@@ -25,18 +25,19 @@ namespace BookSIte.Areas.Customer.Controllers
             var ClaimIdentity = (ClaimsIdentity)User.Identity;
             var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-            ShoppingCartVM shoppingCartVM = new ShoppingCartVM()
-            {
-                ShoppingCartsList = _unit.ShoppinCartRepo.GetAll( "Product" ,a =>a.ApplicationsUserId == userId ),
-            };
+			ShoppingCartVM = new()
+			{
+				ShoppingCartsList = _unit.ShoppinCartRepo.GetAll("Product",u => u.ApplicationsUserId == userId),
+				OrderHeaders = new()
+			};
 
-            foreach (var item in shoppingCartVM.ShoppingCartsList)
+			foreach (var item in ShoppingCartVM.ShoppingCartsList)
             {
                 item.ItemPrice = GetBriceBasedOnQuntity(item);
-                shoppingCartVM.TotalOrder += (item.ItemPrice * item.Count);
+				ShoppingCartVM.OrderHeaders.OrderTotal += (item.ItemPrice * item.Count);
 
             }
-            return View(shoppingCartVM);
+            return View(ShoppingCartVM);
         }
 
         public IActionResult plus(int id)
@@ -83,7 +84,35 @@ namespace BookSIte.Areas.Customer.Controllers
 
         public IActionResult Summary()
         {
-            return View();
+            var ClaimIdentity = (ClaimsIdentity)User.Identity;
+            var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+			// e694bcca-347b-486b-acfa-88a697336b8c
+			// e694bcca-347b-486b-acfa-88a697336b8c
+			ShoppingCartVM = new()
+			{
+				ShoppingCartsList = _unit.ShoppinCartRepo.GetAll("Product", u => u.ApplicationsUserId == userId),
+				OrderHeaders = new()
+			};
+
+			var x = _unit.ApplicationRepo.GetAll("",a => a.Id == "e694bcca-347b-486b-acfa-88a697336b8c");
+
+			ShoppingCartVM.OrderHeaders.ApplicationUser = _unit.ApplicationRepo.Get(u => u.Id == userId);
+
+			ShoppingCartVM.OrderHeaders.Name = ShoppingCartVM.OrderHeaders.ApplicationUser.Name;
+			ShoppingCartVM.OrderHeaders.PhoneNumber = ShoppingCartVM.OrderHeaders.ApplicationUser.PhoneNumber;
+			ShoppingCartVM.OrderHeaders.StreetAddress = ShoppingCartVM.OrderHeaders.ApplicationUser.StreetAddress;
+			ShoppingCartVM.OrderHeaders.City = ShoppingCartVM.OrderHeaders.ApplicationUser.City;
+			ShoppingCartVM.OrderHeaders.PostalCode = ShoppingCartVM.OrderHeaders.ApplicationUser.PostalCode;
+
+            foreach (var item in ShoppingCartVM.ShoppingCartsList)
+            {
+                item.ItemPrice = GetBriceBasedOnQuntity(item);
+				ShoppingCartVM.OrderHeaders.OrderTotal += (item.ItemPrice * item.Count);
+
+            }
+
+            return View(ShoppingCartVM);
+            
         }
 
         private double GetBriceBasedOnQuntity(ShoppingCart cart)
