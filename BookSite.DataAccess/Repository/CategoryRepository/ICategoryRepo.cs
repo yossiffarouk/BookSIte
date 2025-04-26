@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookSite.DataAccess.Repository.Category
+namespace BookSite.DataAccess.Repository.CategoryRepository
 {
-    public interface ICategoryRepo : IRepository<BookStore.Models.Category>
+    public interface ICategoryRepo : IRepository<Category>
     {
-        void Update(BookStore.Models.Category obj);
+        void Update(Category obj);
     }
 }

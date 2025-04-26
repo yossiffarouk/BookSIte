@@ -1,5 +1,5 @@
 ﻿using BookSite.DataAccess.Repository.ApplicationRepository;
-using BookSite.DataAccess.Repository.Category;
+using BookSite.DataAccess.Repository.CategoryRepository;
 using BookSite.DataAccess.Repository.CompanyRepository;
 using BookSite.DataAccess.Repository.OrderDetailRepository;
 using BookSite.DataAccess.Repository.OrderHeaderRepository;

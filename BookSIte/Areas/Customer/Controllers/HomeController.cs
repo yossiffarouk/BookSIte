@@ -29,15 +29,15 @@ namespace BookSIte.Areas.Customer.Controllers
         }
         public IActionResult Details(int id) 
         {
-            ShoppingCart shoppigCart = new ShoppingCart()
-            {
-                Product = _unit.ProductRepo.Get(a => a.Id == id, includeproperty: "Category"),
-                Count = 1,
-                ProductId = id
-            };
-        
-            
-            return View(shoppigCart);
+			ShoppingCart cart = new()
+			{
+				Product = _unit.ProductRepo.Get( u => u.Id == id , "Category"),
+				Count = 1,
+				ProductId = id
+			};
+
+
+			return View(cart);
         }
         [HttpPost]
         [Authorize]

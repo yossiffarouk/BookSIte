@@ -9,9 +9,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookSite.DataAccess.Repository.Category
+namespace BookSite.DataAccess.Repository.CategoryRepository
 {
-    public class CategoryRepo : Repository<BookStore.Models.Category> , ICategoryRepo
+    public class CategoryRepo : Repository<Category> , ICategoryRepo
     {
         private readonly Context _Context;
         
@@ -21,7 +21,7 @@ namespace BookSite.DataAccess.Repository.Category
             
         }
 
-        public void Update(BookStore.Models.Category obj)
+        public void Update(Category obj)
         {
             _Context.Update(obj);
         }
