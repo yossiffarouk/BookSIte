@@ -11,5 +11,6 @@ namespace BookSite.DataAccess.Repository.ApplicationRepository
     public interface IApplicationRepo : IRepository<ApplicationsUser>
     {
         void Update(ApplicationsUser obj);
+		
     }
 }

@@ -1,8 +1,11 @@
-﻿using BookSite.DataAccess.Repository.Unitofwork;
+﻿using BookkStore.Utility;
+using BookSite.DataAccess.Repository.Unitofwork;
+using BookSIte.Data;
 using BookStore.Models;
 using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 
 namespace BookSIte.Areas.Customer.Controllers
@@ -11,14 +14,17 @@ namespace BookSIte.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unit;
-
+        
+        [BindProperty]
 		public ShoppingCartVM ShoppingCartVM { get; set; }
-		public CartController(IUnitOfWork unit)
+		public CartController(IUnitOfWork unit) 
         {
            
             _unit = unit;
+           
 
-        }
+
+		}
         [Authorize]
         public IActionResult Index()
         {
@@ -86,15 +92,12 @@ namespace BookSIte.Areas.Customer.Controllers
         {
             var ClaimIdentity = (ClaimsIdentity)User.Identity;
             var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-			// e694bcca-347b-486b-acfa-88a697336b8c
-			// e694bcca-347b-486b-acfa-88a697336b8c
+		
 			ShoppingCartVM = new()
 			{
 				ShoppingCartsList = _unit.ShoppinCartRepo.GetAll("Product", u => u.ApplicationsUserId == userId),
 				OrderHeaders = new()
 			};
-
-			var x = _unit.ApplicationRepo.GetAll("",a => a.Id == "e694bcca-347b-486b-acfa-88a697336b8c");
 
 			ShoppingCartVM.OrderHeaders.ApplicationUser = _unit.ApplicationRepo.Get(u => u.Id == userId);
 
@@ -104,7 +107,7 @@ namespace BookSIte.Areas.Customer.Controllers
 			ShoppingCartVM.OrderHeaders.City = ShoppingCartVM.OrderHeaders.ApplicationUser.City;
 			ShoppingCartVM.OrderHeaders.PostalCode = ShoppingCartVM.OrderHeaders.ApplicationUser.PostalCode;
 
-            foreach (var item in ShoppingCartVM.ShoppingCartsList)
+            foreach (var item in ShoppingCartVM.ShoppingCartsList)    
             {
                 item.ItemPrice = GetBriceBasedOnQuntity(item);
 				ShoppingCartVM.OrderHeaders.OrderTotal += (item.ItemPrice * item.Count);
@@ -114,8 +117,70 @@ namespace BookSIte.Areas.Customer.Controllers
             return View(ShoppingCartVM);
             
         }
+        [HttpPost]
+        [ActionName("Summary")]
+		public IActionResult SummaryPost()
+		{
+			var ClaimIdentity = (ClaimsIdentity)User.Identity;
+			var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            
+            ShoppingCartVM.ShoppingCartsList = _unit.ShoppinCartRepo.GetAll("Product", u => u.ApplicationsUserId == userId);
+			
 
-        private double GetBriceBasedOnQuntity(ShoppingCart cart)
+			ShoppingCartVM.OrderHeaders.OrderDate = DateTime.Now;
+			ShoppingCartVM.OrderHeaders.ApplicationUserId = userId;
+
+            var appuser = _unit.ApplicationRepo.Get(a=>a.Id == userId);
+			foreach (var item in ShoppingCartVM.ShoppingCartsList)
+			{
+				item.ItemPrice = GetBriceBasedOnQuntity(item);
+				ShoppingCartVM.OrderHeaders.OrderTotal += (item.ItemPrice * item.Count);
+
+			}
+
+
+            if (ShoppingCartVM.OrderHeaders.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
+            {
+                // no company 
+                ShoppingCartVM.OrderHeaders.PaymentStatus = SD.PaymentStatusPending;
+                ShoppingCartVM.OrderHeaders.OrderStatus = SD.PaymentStatusPending;
+
+
+            }
+            else
+            {
+                // has company
+                ShoppingCartVM.OrderHeaders.PaymentStatus = SD.PaymentStatusDelayedPayment;
+                ShoppingCartVM.OrderHeaders.OrderStatus = SD.StatusApproved;
+            }
+
+
+            _unit.OrderHeaderRepo.Add(ShoppingCartVM.OrderHeaders);
+            _unit.savechanges();
+
+
+            foreach (var item in ShoppingCartVM.ShoppingCartsList)
+            {
+                OrderDetail orderDetail = new OrderDetail()
+                {
+                    ProductId = item.ProductId,
+                    OrderHeaderId = ShoppingCartVM.OrderHeaders.Id,
+                    Price = item.ItemPrice,
+                    Count = item.Count,
+				};
+				_unit.OrderDetailRepo.Add(orderDetail);
+			}
+			_unit.savechanges();
+
+			return View(ShoppingCartVM);
+
+		}
+
+
+
+
+
+		private double GetBriceBasedOnQuntity(ShoppingCart cart)
         {
             if (cart.Count <= 50)
             {

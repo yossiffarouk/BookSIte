@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 namespace BookStore.Models
 {
     public class ApplicationsUser : IdentityUser
-    {
+	{
         public string Name { get; set; }
         public string? City { get; set; }
         public string? StreetAddress { get; set; }
         public string? PostalCode { get; set; }
 
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
         [ForeignKey("CompanyId")]
         [ValidateNever]
         public Company Company { get; set; }

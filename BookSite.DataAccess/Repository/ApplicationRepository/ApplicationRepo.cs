@@ -20,7 +20,8 @@ namespace BookSite.DataAccess.Repository.ApplicationRepository
 
         }
 
-        public void Update(ApplicationsUser obj)
+
+		public void Update(ApplicationsUser obj)
         {
             _Context.Update(obj);
 
