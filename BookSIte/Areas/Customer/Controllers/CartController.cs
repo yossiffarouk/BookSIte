@@ -130,8 +130,8 @@ namespace BookSIte.Areas.Customer.Controllers
 			ShoppingCartVM.OrderHeaders.OrderDate = DateTime.Now;
 			ShoppingCartVM.OrderHeaders.ApplicationUserId = userId;
 
-            var appuser = _unit.ApplicationRepo.Get(a=>a.Id == userId);
-			foreach (var item in ShoppingCartVM.ShoppingCartsList)
+            var appuser = _unit.ApplicationRepo.Get(a => a.Id == userId);
+            foreach (var item in ShoppingCartVM.ShoppingCartsList)
 			{
 				item.ItemPrice = GetBriceBasedOnQuntity(item);
 				ShoppingCartVM.OrderHeaders.OrderTotal += (item.ItemPrice * item.Count);
@@ -139,7 +139,7 @@ namespace BookSIte.Areas.Customer.Controllers
 			}
 
 
-            if (ShoppingCartVM.OrderHeaders.ApplicationUser.CompanyId.GetValueOrDefault() == 0)
+            if (appuser.CompanyId.GetValueOrDefault() == 0)
             {
                 // no company 
                 ShoppingCartVM.OrderHeaders.PaymentStatus = SD.PaymentStatusPending;
@@ -172,15 +172,20 @@ namespace BookSIte.Areas.Customer.Controllers
 			}
 			_unit.savechanges();
 
-			return View(ShoppingCartVM);
+			return RedirectToAction(nameof (OrderConfirmation) , new  {id = ShoppingCartVM.OrderHeaders.Id });
 
 		}
+        public IActionResult OrderConfirmation(int id)
+        {
+
+            return View(id);
+
+        }
 
 
 
 
-
-		private double GetBriceBasedOnQuntity(ShoppingCart cart)
+        private double GetBriceBasedOnQuntity(ShoppingCart cart)
         {
             if (cart.Count <= 50)
             {
