@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BookSite.DataAccess.Repository.OrderHeaderRepository
 {
-    public class OrderHeaderRepo : Repository<OrderHeader> , IOrderHeaderRepo
+    public class OrderHeaderRepo : Repository<OrderHeader>, IOrderHeaderRepo
     {
         private readonly Context _Context;
 
@@ -25,7 +25,34 @@ namespace BookSite.DataAccess.Repository.OrderHeaderRepository
         {
             _Context.Update(obj);
 
-            
+
         }
+        public void UpdateStatus(int id, string orderStatus, string? paymentStatus = null)
+        {
+            var orderFromDb = _Context.OrderHeaders.FirstOrDefault(u => u.Id == id);
+            if (orderFromDb != null)
+            {
+                orderFromDb.OrderStatus = orderStatus;
+                if (!string.IsNullOrEmpty(paymentStatus))
+                {
+                    orderFromDb.PaymentStatus = paymentStatus;
+                }
+            }
+        }
+
+        public void UpdateStripePaymentID(int id, string sessionId, string paymentIntentId)
+        {
+            var orderFromDb = _Context.OrderHeaders.FirstOrDefault(u => u.Id == id);
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                orderFromDb.SessionId = sessionId;
+            }
+            if (!string.IsNullOrEmpty(paymentIntentId))
+            {
+                orderFromDb.PaymentIntentId = paymentIntentId;
+                orderFromDb.PaymentDate = DateTime.Now;
+            }
+        }
+
     }
 }

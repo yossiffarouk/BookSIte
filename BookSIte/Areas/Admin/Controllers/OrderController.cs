@@ -1,5 +1,7 @@
 ﻿using BookkStore.Utility;
 using BookSite.DataAccess.Repository.Unitofwork;
+using BookStore.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -9,9 +11,12 @@ namespace BookSIte.Areas.Admin.Controllers
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork _Unit;
-		
 
-		public OrderController(IUnitOfWork Unit)
+        [BindProperty]
+        public OrderVM orderVM { get; set; }
+
+
+        public OrderController(IUnitOfWork Unit)
 		{
 			_Unit = Unit;
 		
@@ -21,10 +26,63 @@ namespace BookSIte.Areas.Admin.Controllers
 			return View();
 		}
 
+        public IActionResult Details(int orderid)
+        {
+            orderVM = new()
+            {
+                Header = _Unit.OrderHeaderRepo.Get(a => a.Id == orderid, includeproperty: "ApplicationUser"),
+                OrderDetailList = _Unit.OrderDetailRepo.GetAll(includeproperty: "Product", a => a.OrderHeaderId == orderid)
+            };
+            return View(orderVM);
+        }
+        [HttpPost]
+        [Authorize(Roles = SD.Role_User_Admin + "," + SD.Role_User_Employee)]
+        public IActionResult UpdateOrderDetail(int orderid)
+        {
+            var orderfromdb = _Unit.OrderHeaderRepo.Get(a => a.Id == orderid);
+            orderfromdb.Name = orderVM.Header.Name;
+            orderfromdb.PhoneNumber = orderVM.Header.PhoneNumber;
+            orderfromdb.StreetAddress = orderVM.Header.StreetAddress;
+            orderfromdb.City = orderVM.Header.City;
+            orderfromdb.PostalCode = orderVM.Header.PostalCode;
+            if (!string.IsNullOrEmpty(orderfromdb.Carrier))
+            {
+                orderfromdb.Carrier = orderVM.Header.Carrier;
+            }
+            if (!string.IsNullOrEmpty(orderfromdb.TrackingNumber))
+            {
+                orderfromdb.TrackingNumber = orderVM.Header.TrackingNumber;
+            }
+            _Unit.OrderHeaderRepo.Update(orderfromdb);
+            _Unit.savechanges();
 
 
+            TempData["Update"] = "Order Details Updated Successfully";
+            return RedirectToAction(nameof(Details) ,  new { orderid  = orderfromdb .Id});
+        }
+        [HttpPost]
+        [Authorize(Roles = SD.Role_User_Admin + "," + SD.Role_User_Employee)]
+        public IActionResult UpdateProccsing(int orderid)
+        {
+            var orderfromdb = _Unit.OrderHeaderRepo.Get(a => a.Id == orderid);
+            //_Unit.OrderHeaderRepo.update
+            if (!string.IsNullOrEmpty(orderfromdb.Carrier))
+            {
+                orderfromdb.Carrier = orderVM.Header.Carrier;
+            }
+            if (!string.IsNullOrEmpty(orderfromdb.TrackingNumber))
+            {
+                orderfromdb.TrackingNumber = orderVM.Header.TrackingNumber;
+            }
+            _Unit.OrderHeaderRepo.Update(orderfromdb);
+            _Unit.savechanges();
 
-		public IActionResult getall(string status)
+
+            TempData["Update"] = "Order Details Updated Successfully";
+            return RedirectToAction(nameof(Details), new { orderid = orderfromdb.Id });
+        }
+
+        public IActionResult getall(string status)
 		{
 			var Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser");
 

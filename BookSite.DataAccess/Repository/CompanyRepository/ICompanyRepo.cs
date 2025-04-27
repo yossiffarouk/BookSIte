@@ -11,5 +11,6 @@ namespace BookSite.DataAccess.Repository.CompanyRepository
     public interface ICompanyRepo : IRepository<Company>
     {
         void Update(Company obj);
+
     }
 }
