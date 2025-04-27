@@ -1,5 +1,7 @@
-﻿using BookSite.DataAccess.Repository.Unitofwork;
+﻿using BookkStore.Utility;
+using BookSite.DataAccess.Repository.Unitofwork;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace BookSIte.Areas.Admin.Controllers
 {
@@ -22,11 +24,31 @@ namespace BookSIte.Areas.Admin.Controllers
 
 
 
-		public IActionResult getall()
+		public IActionResult getall(string status)
 		{
 			var Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser");
-			
-			return Json(new { data = Orders });
+
+
+            switch (status)
+            {
+                case "pending":
+                    Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser" , a=>a.PaymentStatus == SD.PaymentStatusDelayedPayment);
+                    break;
+                case "inprocess":
+                    Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser", a => a.OrderStatus == SD.StatusInProcess);
+                    break;
+                case "completed":
+                    Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser", a => a.OrderStatus == SD.StatusShipped);
+                    break;
+                case "approved":
+                    Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser", a => a.OrderStatus == SD.StatusApproved);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return Json(new { data = Orders });
 		}
 	}
 }
