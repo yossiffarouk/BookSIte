@@ -121,7 +121,7 @@
                                     }
                                     else
                                     {
-                                        <input asp-for="Header.Carrier" readonly type="text" class="form-control" />
+                                        <input asp-for="Header.Carrier" readonly id="carrier" type="text" class="form-control" />
                                     }
                                 </div>
                             </div>
@@ -135,7 +135,7 @@
                                     }
                                     else
                                     {
-                                        <input asp-for="Header.TrackingNumber" readonly type="text" class="form-control" />
+                                        <input asp-for="Header.TrackingNumber" id="trackingNumber" readonly type="text" class="form-control" />
                                     }
                                 </div>
                             </div>
@@ -203,7 +203,7 @@
                             <h4 class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-primary">Order Summary</span>
                             </h4>
-                            <label class="btn btn-outline-primary form-control my-2">Order Status - XXOrderStatusXX</label>
+                            <label class="btn btn-outline-primary form-control my-2">Order Status - @Model.Header.OrderStatus</label>
 
                             <ul class="list-group mb-3">
                                 @foreach (var item in Model.OrderDetailList)
@@ -214,7 +214,7 @@
                                     <div class="row container">
                                         <div class="col-8">
 
-                                            <h6 class="my-0 text-primary">Title</h6>
+                                            <h6 class="my-0 text-primary">@item.Product.Title</h6>
                                             <small class="text-muted">Price : @item.Price</small><br />
                                             <small class="text-muted">Quantity : @item.Count</small>
                                         </div>
@@ -230,12 +230,12 @@
                                             <h5 class="text-white">TOTAL </h5>
                                         </div>
                                         <div class="col-6 text-end">
-                                            <h5 class="text-white">$$$$</h5>
+                                            <h5 class="text-white">@Model.Header.OrderTotal</h5>
                                         </div>
                                     </div>
                                 </li>
                             </ul>
-                             }
+                             
                             @if (Model.Header.PaymentStatus == SD.PaymentStatusDelayedPayment &&
                             Model.Header.OrderStatus == SD.StatusShipped)
                             {
@@ -245,18 +245,21 @@
                             {
                                 @if (Model.Header.OrderStatus == SD.StatusApproved)
                                 {
-                                    <button type="submit" class="btn btn-primary form-control my-1">Start Processing</button>
+                                    <button type="submit" asp-action="StartProcessing"
+                                            class="btn btn-primary form-control my-1">
+                                        Start Processing
+                                    </button>
                                 }
                                 @if (Model.Header.OrderStatus == SD.StatusInProcess)
                                 {
-                                    <button type="submit" class="btn btn-primary form-control my-1">Ship Order</button>
+                                    <button type="submit" asp-action="ShipOrder" onclick="return validateInput()" class="btn btn-primary form-control my-1">Ship Order</button>
                                 }
 
                                 @if (Model.Header.OrderStatus != SD.StatusRefunded &&
                                Model.Header.OrderStatus != SD.StatusCancelled &&
                                Model.Header.OrderStatus != SD.StatusShipped)
                                 {
-                                    <button type="submit" class="btn btn-danger form-control my-1">Cancel Order</button>
+                                    <button asp-action="CancelOrder" type="submit" class="btn btn-danger form-control my-1">Cancel Order</button>
                                 }
                             }
                         </div>
@@ -266,3 +269,30 @@
         </div>
     </div>
 </form>
+
+
+@section Scripts{
+ 
+     <partial name="_ValidationScriptsPartial" />
+     <script>
+         function validateInput(){
+             if(document.getElementById("trackingNumber").value==""){
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'Oops...',
+                     text: 'Please enter tracking number!',
+                 });
+                 return false;
+             }
+             if (document.getElementById("carrier").value =="") {
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'Oops...',
+                     text: 'Please enter carrier!',
+                 });
+                 return false;
+             }
+             return true;
+         }
+     </script>
+     }

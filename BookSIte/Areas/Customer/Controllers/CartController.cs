@@ -143,7 +143,7 @@ namespace BookSIte.Areas.Customer.Controllers
             {
                 // no company 
                 ShoppingCartVM.OrderHeaders.PaymentStatus = SD.PaymentStatusPending;
-                ShoppingCartVM.OrderHeaders.OrderStatus = SD.PaymentStatusPending;
+                ShoppingCartVM.OrderHeaders.OrderStatus = SD.StatusPending;
 
 
             }

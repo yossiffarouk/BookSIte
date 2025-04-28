@@ -7,24 +7,25 @@ using System.Diagnostics;
 
 namespace BookSIte.Areas.Admin.Controllers
 {
-	[Area("Admin")]
-	public class OrderController : Controller
-	{
-		private readonly IUnitOfWork _Unit;
+    [Area("Admin")]
+    [Authorize]
+    public class OrderController : Controller
+    {
+        private readonly IUnitOfWork _Unit;
 
         [BindProperty]
         public OrderVM orderVM { get; set; }
 
 
         public OrderController(IUnitOfWork Unit)
-		{
-			_Unit = Unit;
-		
-		}
-		public IActionResult Index()
-		{
-			return View();
-		}
+        {
+            _Unit = Unit;
+
+        }
+        public IActionResult Index()
+        {
+            return View();
+        }
 
         public IActionResult Details(int orderid)
         {
@@ -58,39 +59,65 @@ namespace BookSIte.Areas.Admin.Controllers
 
 
             TempData["Update"] = "Order Details Updated Successfully";
-            return RedirectToAction(nameof(Details) ,  new { orderid  = orderfromdb .Id});
+            return RedirectToAction(nameof(Details), new { orderid = orderfromdb.Id });
         }
         [HttpPost]
         [Authorize(Roles = SD.Role_User_Admin + "," + SD.Role_User_Employee)]
-        public IActionResult UpdateProccsing(int orderid)
+        public IActionResult UpdateProccsing()
         {
-            var orderfromdb = _Unit.OrderHeaderRepo.Get(a => a.Id == orderid);
-            //_Unit.OrderHeaderRepo.update
-            if (!string.IsNullOrEmpty(orderfromdb.Carrier))
-            {
-                orderfromdb.Carrier = orderVM.Header.Carrier;
-            }
-            if (!string.IsNullOrEmpty(orderfromdb.TrackingNumber))
-            {
-                orderfromdb.TrackingNumber = orderVM.Header.TrackingNumber;
-            }
-            _Unit.OrderHeaderRepo.Update(orderfromdb);
+            _Unit.OrderHeaderRepo.UpdateStatus(orderVM.Header.Id, SD.StatusInProcess);
             _Unit.savechanges();
 
 
-            TempData["Update"] = "Order Details Updated Successfully";
-            return RedirectToAction(nameof(Details), new { orderid = orderfromdb.Id });
+            TempData["Update"] = "Order Updated In InProcess Mode";
+            return RedirectToAction(nameof(Details), new { orderid = orderVM.Header.Id });
         }
 
+        [HttpPost]
+        [Authorize(Roles = SD.Role_User_Admin + "," + SD.Role_User_Employee)]
+
+        public IActionResult ShipOrder()
+        {
+
+            var orderHeader = _Unit.OrderHeaderRepo.Get(u => u.Id == orderVM.Header.Id);
+            orderHeader.TrackingNumber = orderVM.Header.TrackingNumber;
+            orderHeader.Carrier = orderVM.Header.Carrier;
+            orderHeader.OrderStatus = SD.StatusShipped;
+            orderHeader.ShippingDate = DateTime.Now;
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                orderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
+            }
+
+            _Unit.OrderHeaderRepo.Update(orderHeader);
+            _Unit.savechanges();
+            TempData["Success"] = "Order Shipped Successfully.";
+            return RedirectToAction(nameof(Details), new { orderId = orderVM.Header.Id });
+        }
+
+        public IActionResult CancelOrder()
+        {
+
+            var orderHeader = _Unit.OrderHeaderRepo.Get(u => u.Id == orderVM.Header.Id);
+
+            // when add payment get way this line to refund money to clinet
+            //_Unit.OrderHeaderRepo.UpdateStatus(orderVM.Header.Id, SD.StatusCancelled , SD.StatusRefunded );
+            _Unit.OrderHeaderRepo.UpdateStatus(orderVM.Header.Id, SD.StatusCancelled , SD.StatusCancelled);
+
+            TempData["Delete"] = $"Order with id : {orderVM.Header.Id} Has Cancelled";
+            return RedirectToAction(nameof(Details), new { orderId = orderVM.Header.Id });
+        }
+
+
         public IActionResult getall(string status)
-		{
-			var Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser");
+        {
+            var Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser");
 
 
             switch (status)
             {
                 case "pending":
-                    Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser" , a=>a.PaymentStatus == SD.PaymentStatusDelayedPayment);
+                    Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser", a => a.PaymentStatus == SD.PaymentStatusDelayedPayment);
                     break;
                 case "inprocess":
                     Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser", a => a.OrderStatus == SD.StatusInProcess);
@@ -107,6 +134,6 @@ namespace BookSIte.Areas.Admin.Controllers
             }
 
             return Json(new { data = Orders });
-		}
-	}
+        }
+    }
 }
