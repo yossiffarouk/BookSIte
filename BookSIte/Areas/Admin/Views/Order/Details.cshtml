@@ -1,7 +1,7 @@
 ﻿@model BookStore.Models.ViewModels.OrderVM
 
 <form method="post">
-    @* <input asp-for="Header.Id" hidden /> *@
+    <input asp-for="Header.Id" hidden />
     <br />
     <div class="container">
         <div class="card">
@@ -116,8 +116,8 @@
                                 <div class="col-9">
                                     @if (User.IsInRole(SD.Role_User_Admin) || User.IsInRole(SD.Role_User_Employee))
                                     {
-                                        <input asp-for="Header.Carrier" type="text" class="form-control" />
-                                        <span asp-validation-for="Header.Carrier" class="text-danger"></span>
+                                        <input asp-for="Header.Carrier" id="carrier" type="text" class="form-control" />
+                                        <span asp-validation-for="Header.Carrier"  class="text-danger"></span>
                                     }
                                     else
                                     {
@@ -130,7 +130,7 @@
                                 <div class="col-9">
                                     @if (User.IsInRole(SD.Role_User_Admin) || User.IsInRole(SD.Role_User_Employee))
                                     {
-                                        <input asp-for="Header.TrackingNumber" type="text" class="form-control" />
+                                        <input asp-for="Header.TrackingNumber" id="trackingNumber" type="text" class="form-control" />
                                        
                                     }
                                     else

@@ -4,6 +4,7 @@ using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace BookSIte.Areas.Admin.Controllers
 {
@@ -63,7 +64,7 @@ namespace BookSIte.Areas.Admin.Controllers
         }
         [HttpPost]
         [Authorize(Roles = SD.Role_User_Admin + "," + SD.Role_User_Employee)]
-        public IActionResult UpdateProccsing()
+        public IActionResult StartProcessing()
         {
             _Unit.OrderHeaderRepo.UpdateStatus(orderVM.Header.Id, SD.StatusInProcess);
             _Unit.savechanges();
@@ -91,7 +92,7 @@ namespace BookSIte.Areas.Admin.Controllers
 
             _Unit.OrderHeaderRepo.Update(orderHeader);
             _Unit.savechanges();
-            TempData["Success"] = "Order Shipped Successfully.";
+            TempData["Update"] = "Order Shipped Successfully.";
             return RedirectToAction(nameof(Details), new { orderId = orderVM.Header.Id });
         }
 
@@ -113,6 +114,14 @@ namespace BookSIte.Areas.Admin.Controllers
         {
             var Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser");
 
+
+
+            if (User.IsInRole(SD.Role_User_Company))
+            {
+                var ClaimIdentity = (ClaimsIdentity)User.Identity;
+                var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                Orders = _Unit.OrderHeaderRepo.GetAll(includeproperty: "ApplicationUser" , a=>a.ApplicationUserId == userId);
+            }
 
             switch (status)
             {
