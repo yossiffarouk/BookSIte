@@ -7,6 +7,7 @@ using BookkStore.Utility;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BookStore.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.CodeAnalysis.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 
+
+builder.Services.AddAuthentication().AddFacebook(option =>
+{
+    option.AppId = "1700507903901396";
+    option.AppSecret = "1654a0523cff59b5f8d15c9e1e1c8228";
+}
+); 
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options => {
