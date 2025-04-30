@@ -15,7 +15,7 @@ using Category = BookStore.Models.Category;
 namespace BookSIte.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = SD.Role_User_Admin)]
+    [Authorize(Roles = SD.Role_User_Admin)]
     public class ProductController : Controller
     {
 

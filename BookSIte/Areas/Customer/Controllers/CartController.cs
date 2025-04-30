@@ -64,6 +64,7 @@ namespace BookSIte.Areas.Customer.Controllers
             var cartItem = _unit.ShoppinCartRepo.Get(a => a.Id == id);
             if (cartItem.Count <= 1)
             {
+                HttpContext.Session.SetInt32(SD.SessionCart, _unit.ShoppinCartRepo.GetAll("", a => a.ApplicationsUserId == cartItem.ApplicationsUserId).Count() - 1);
                 _unit.ShoppinCartRepo.Remove(cartItem);
             }
             else
@@ -79,10 +80,12 @@ namespace BookSIte.Areas.Customer.Controllers
         }
         public IActionResult Delete(int id)
         {
+            
             var cartItem = _unit.ShoppinCartRepo.Get(a => a.Id == id);
            
             _unit.ShoppinCartRepo.Remove(cartItem);
-            
+             HttpContext.Session.SetInt32(SD.SessionCart, _unit.ShoppinCartRepo.GetAll("", a => a.ApplicationsUserId == cartItem.ApplicationsUserId).Count() - 1);
+
             _unit.savechanges();
 
             return RedirectToAction(nameof(Index));

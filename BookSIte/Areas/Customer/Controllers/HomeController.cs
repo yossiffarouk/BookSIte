@@ -1,6 +1,8 @@
+using BookkStore.Utility;
 using BookSite.DataAccess.Repository.Unitofwork;
 using BookStore.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -24,6 +26,7 @@ namespace BookSIte.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
+           
             var products = _unit.ProductRepo.GetAll(includeproperty: "Category");
             return View(products);
         }
@@ -57,14 +60,16 @@ namespace BookSIte.Areas.Customer.Controllers
             {
                 cartfromdb.Count += shoppigCart.Count;
                 _unit.ShoppinCartRepo.Update(cartfromdb);
+                _unit.savechanges();
             }
             else
             {
                 _unit.ShoppinCartRepo.Add(shoppigCart);
+                _unit.savechanges();   
+                HttpContext.Session.SetInt32(SD.SessionCart, _unit.ShoppinCartRepo.GetAll("" ,a => a.ApplicationsUserId == userId).Count());
 
             }
 
-            _unit.savechanges();   
 
 
             return RedirectToAction(nameof(Index));
