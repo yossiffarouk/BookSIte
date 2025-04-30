@@ -180,7 +180,14 @@ namespace BookSIte.Areas.Customer.Controllers
 		}
         public IActionResult OrderConfirmation(int id)
         {
+            OrderHeader orderHeader = _unit.OrderHeaderRepo.Get(u => u.Id == id, "ApplicationUser");
+            List<ShoppingCart> shoppingCarts = _unit.ShoppinCartRepo
+             .GetAll("",u => u.ApplicationsUserId == orderHeader.ApplicationUserId).ToList();
+            _unit.ShoppinCartRepo.RemoveRange(shoppingCarts);
+            _unit.savechanges();
 
+                
+            HttpContext.Session.Clear();
             return View(id);
 
         }

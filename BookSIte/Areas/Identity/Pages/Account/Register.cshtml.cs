@@ -172,7 +172,7 @@ namespace BookSIte.Areas.Identity.Pages.Account
                 {
                     user.CompanyId = Input.CompanyId;
                 }
-                
+
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -209,7 +209,16 @@ namespace BookSIte.Areas.Identity.Pages.Account
                     }
                     else
                     {
+                        if (User.IsInRole(SD.Role_User_Admin))
+                        {
+                            TempData["Create"] = "New User Added";
+                        }
+                        else
+                        {
+
                         await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
+
                         return LocalRedirect(returnUrl);
                     }
                 }
