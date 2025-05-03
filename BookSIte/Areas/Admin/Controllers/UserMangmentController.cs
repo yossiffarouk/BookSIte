@@ -5,7 +5,9 @@ using BookStore.Models;
 using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
@@ -18,17 +20,75 @@ namespace BookSIte.Areas.Admin.Controllers
     public class UserMangmentController : Controller
     {
         private readonly Context _context;
+        private readonly UserManager<IdentityUser> _userMangment;
 
-        public UserMangmentController(Context Context)
+        public UserMangmentController(Context Context, UserManager<IdentityUser> userMangment)
         {
             _context = Context;
+            _userMangment = userMangment;
         }
         public IActionResult Index()
         {
             return View();
         }
 
-       
+        public IActionResult RoleMangment(string userId)
+        {
+            string RoleID = _context.UserRoles.FirstOrDefault(u => u.UserId == userId).RoleId;
+            UserMangmentVM vm = new UserMangmentVM()
+            {
+                ApplicationsUser = _context.ApplicationsUsers.Include(u => u.Company).FirstOrDefault(a => a.Id == userId),
+                Companys = _context.Companies.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString(),
+
+                }),
+
+                Roles = _context.Roles.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Name,
+
+                }),
+
+
+            };
+
+            vm.ApplicationsUser.Role = _context.Roles.FirstOrDefault(a => a.Id == RoleID).Name;
+
+            return View(vm);
+        }
+
+
+        [HttpPost]
+        public IActionResult RoleMangment(UserMangmentVM UserMangmentVM)
+        {
+
+            string RoleID = _context.UserRoles.FirstOrDefault(u => u.UserId == UserMangmentVM.ApplicationsUser.Id).RoleId;
+            string oldRole = _context.Roles.FirstOrDefault(u => u.Id == RoleID).Name;
+
+            if (!(UserMangmentVM.ApplicationsUser.Role == oldRole))
+            {
+                //a role was updated
+                ApplicationsUser applicationUser = _context.ApplicationsUsers.FirstOrDefault(u => u.Id == UserMangmentVM.ApplicationsUser.Id);
+                if (UserMangmentVM.ApplicationsUser.Role == SD.Role_User_Company)
+                {
+                    applicationUser.CompanyId = UserMangmentVM.ApplicationsUser.CompanyId;
+                }
+                if (oldRole == SD.Role_User_Company)
+                {
+                    applicationUser.CompanyId = null;
+                }
+                _context.SaveChanges();
+
+                _userMangment.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
+                _userMangment.AddToRoleAsync(applicationUser, UserMangmentVM.ApplicationsUser.Role).GetAwaiter().GetResult();
+
+            }
+
+            return RedirectToAction("Index");
+        }
 
         public IActionResult getall()
         {
