@@ -63,30 +63,30 @@ namespace BookSIte.Areas.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                string wwwrootpath = _WebHostEnvironment.WebRootPath;
-                if (file != null)
-                {
+                //string wwwrootpath = _WebHostEnvironment.WebRootPath;
+                //if (file != null)
+                //{
 
 
-                    string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string productPath = Path.Combine(wwwrootpath, @"images\product");
+                //    string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                //    string productPath = Path.Combine(wwwrootpath, @"images\product");
 
-                    if (!string.IsNullOrEmpty(ProductVM.Product.ImageUrl))
-                    {
-                        var oldimagepath = Path.Combine(wwwrootpath, ProductVM.Product.ImageUrl.TrimStart('\\'));
+                //    if (!string.IsNullOrEmpty(ProductVM.Product.ImageUrl))
+                //    {
+                //        var oldimagepath = Path.Combine(wwwrootpath, ProductVM.Product.ImageUrl.TrimStart('\\'));
 
-                        if (System.IO.File.Exists(oldimagepath))
-                        {
-                            System.IO.File.Delete(oldimagepath);
-                        }
-                    }
-                    using (var filestrme = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
-                    {
-                        file.CopyTo(filestrme);
-                    }
+                //        if (System.IO.File.Exists(oldimagepath))
+                //        {
+                //            System.IO.File.Delete(oldimagepath);
+                //        }
+                //    }
+                //    using (var filestrme = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
+                //    {
+                //        file.CopyTo(filestrme);
+                //    }
 
-                    ProductVM.Product.ImageUrl = @"\images\product\" + filename;
-                }
+                //    ProductVM.Product.ImageUrl = @"\images\product\" + filename;
+                //}
 
 
 
@@ -126,12 +126,12 @@ namespace BookSIte.Areas.Admin.Controllers
             }
 
 
-            var oldimagepath = Path.Combine(_WebHostEnvironment.WebRootPath, proudecttodelete.ImageUrl.TrimStart('\\'));
+            //var oldimagepath = Path.Combine(_WebHostEnvironment.WebRootPath, proudecttodelete.ImageUrl.TrimStart('\\'));
 
-            if (System.IO.File.Exists(oldimagepath))
-            {
-                System.IO.File.Delete(oldimagepath);
-            }
+            //if (System.IO.File.Exists(oldimagepath))
+            //{
+            //    System.IO.File.Delete(oldimagepath);
+            //}
            
             TempData["Delete"] = $"{proudecttodelete.Title} Has Deleteded";
             _Unit.ProductRepo.Remove(proudecttodelete);

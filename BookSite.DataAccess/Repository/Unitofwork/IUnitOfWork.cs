@@ -3,6 +3,7 @@ using BookSite.DataAccess.Repository.CategoryRepository;
 using BookSite.DataAccess.Repository.CompanyRepository;
 using BookSite.DataAccess.Repository.OrderDetailRepository;
 using BookSite.DataAccess.Repository.OrderHeaderRepository;
+using BookSite.DataAccess.Repository.ProductImageRepository;
 using BookSite.DataAccess.Repository.ProductRepository;
 using BookSite.DataAccess.Repository.ShoppinCartRepository;
 using System;
@@ -22,6 +23,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
         IOrderHeaderRepo OrderHeaderRepo { get;  }
         IOrderDetailRepo OrderDetailRepo { get;  }
         IApplicationRepo ApplicationRepo { get;  }
+        IProductImageRepo ProductImageRepo { get;  }
 
         void savechanges();
     }

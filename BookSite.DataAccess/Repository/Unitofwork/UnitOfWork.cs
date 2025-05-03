@@ -3,6 +3,7 @@ using BookSite.DataAccess.Repository.CategoryRepository;
 using BookSite.DataAccess.Repository.CompanyRepository;
 using BookSite.DataAccess.Repository.OrderDetailRepository;
 using BookSite.DataAccess.Repository.OrderHeaderRepository;
+using BookSite.DataAccess.Repository.ProductImageRepository;
 using BookSite.DataAccess.Repository.ProductRepository;
 using BookSite.DataAccess.Repository.ShoppinCartRepository;
 using BookSIte.Data;
@@ -24,6 +25,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
         public IOrderHeaderRepo OrderHeaderRepo { get; private set; }
         public IOrderDetailRepo OrderDetailRepo { get; private set; }
         public IApplicationRepo ApplicationRepo { get; private set; }
+        public IProductImageRepo ProductImageRepo { get; private set; }
 
         public UnitOfWork(Context Context)
         {
@@ -37,6 +39,7 @@ namespace BookSite.DataAccess.Repository.Unitofwork
             OrderHeaderRepo = new OrderHeaderRepo(Context);
             OrderDetailRepo = new OrderDetailRepo(Context);
             ApplicationRepo = new ApplicationRepo(Context);
+            ProductImageRepo = new ProductImageRepo(Context);
 
         }
 

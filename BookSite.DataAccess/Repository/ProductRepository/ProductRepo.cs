@@ -37,10 +37,10 @@ namespace BookSite.DataAccess.Repository.ProductRepository
                 product.Price50 = obj.Price50;
                 product.Price100 = obj.Price100;
 
-                if (obj.ImageUrl != null)
-                {
-                    product.ImageUrl = obj.ImageUrl;
-                }
+                //if (obj.ImageUrl != null)
+                //{
+                //    product.ImageUrl = obj.ImageUrl;
+                //}
 
             }
         }
