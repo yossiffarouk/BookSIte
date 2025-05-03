@@ -167,14 +167,24 @@ namespace BookSIte.Areas.Admin.Controllers
                 return Json(new { success = false , message = "erorrrrr"});
             }
 
+         
+            string productPath = @"images\products\product-" + id;
+            string finalPath = Path.Combine(_WebHostEnvironment.WebRootPath, productPath);
 
-            //var oldimagepath = Path.Combine(_WebHostEnvironment.WebRootPath, proudecttodelete.ImageUrl.TrimStart('\\'));
+            if (Directory.Exists(finalPath))
+            {
+                string[] filePaths = Directory.GetFiles(finalPath);
+                foreach (string filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath);
+                }
 
-            //if (System.IO.File.Exists(oldimagepath))
-            //{
-            //    System.IO.File.Delete(oldimagepath);
-            //}
-           
+                Directory.Delete(finalPath); 
+            }
+                
+
+            
+
             TempData["Delete"] = $"{proudecttodelete.Title} Has Deleteded";
             _Unit.ProductRepo.Remove(proudecttodelete);
             _Unit.savechanges();
