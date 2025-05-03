@@ -37,8 +37,12 @@ namespace BookSIte.Areas.Customer.Controllers
 				OrderHeaders = new()
 			};
 
-			foreach (var item in ShoppingCartVM.ShoppingCartsList)
+            var ProductImageList = _unit.ProductImageRepo.GetAll();
+
+
+            foreach (var item in ShoppingCartVM.ShoppingCartsList)
             {
+                item.Product.ProductImages = ProductImageList.Where(u => u.ProductId == item.Product.Id).ToList();
                 item.ItemPrice = GetBriceBasedOnQuntity(item);
 				ShoppingCartVM.OrderHeaders.OrderTotal += (item.ItemPrice * item.Count);
 

@@ -27,14 +27,14 @@ namespace BookSIte.Areas.Customer.Controllers
         public IActionResult Index()
         {
            
-            var products = _unit.ProductRepo.GetAll(includeproperty: "Category");
+            var products = _unit.ProductRepo.GetAll(includeproperty: "Category,ProductImages");
             return View(products);
         }
         public IActionResult Details(int id) 
         {
 			ShoppingCart cart = new()
 			{
-				Product = _unit.ProductRepo.Get( u => u.Id == id , "Category"),
+				Product = _unit.ProductRepo.Get( u => u.Id == id , "Category,ProductImages"),
 				Count = 1,
 				ProductId = id
 			};

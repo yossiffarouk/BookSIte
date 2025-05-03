@@ -31,7 +31,11 @@ namespace BookSite.DataAccess.Repository.IRepository
             IQueryable<T> query = dbset;
             if (!string.IsNullOrEmpty(includeproperty))
             {
-                query = query.Include(includeproperty);
+                foreach (var includeProp in includeproperty
+                    .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
             }
 
             return query.FirstOrDefault(Filter);
@@ -47,7 +51,11 @@ namespace BookSite.DataAccess.Repository.IRepository
             }
             if (!string.IsNullOrEmpty(includeproperty))
             {
-                query = query.Include(includeproperty);
+                foreach (var includeProp in includeproperty
+                     .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
             }
             return query.ToList();
         }
