@@ -4,8 +4,10 @@ using BookSite.DataAccess.Repository.Unitofwork;
 using BookStore.Models;
 using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.IdentityModel.Tokens;
 using Category = BookStore.Models.Category;
 
@@ -53,41 +55,16 @@ namespace BookSIte.Areas.Admin.Controllers
 
             }
 
-            ProductVM.Product = _Unit.ProductRepo.Get(a => a.Id == id);
+            ProductVM.Product = _Unit.ProductRepo.Get(a => a.Id == id , "ProductImages");
             return View(ProductVM);
 
         }
         [HttpPost]
-        public IActionResult Upsert(ProductVM ProductVM, IFormFile? file)
+        public IActionResult Upsert(ProductVM ProductVM,List<IFormFile>? files)
         {
 
             if (ModelState.IsValid)
             {
-                //string wwwrootpath = _WebHostEnvironment.WebRootPath;
-                //if (file != null)
-                //{
-
-
-                //    string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                //    string productPath = Path.Combine(wwwrootpath, @"images\product");
-
-                //    if (!string.IsNullOrEmpty(ProductVM.Product.ImageUrl))
-                //    {
-                //        var oldimagepath = Path.Combine(wwwrootpath, ProductVM.Product.ImageUrl.TrimStart('\\'));
-
-                //        if (System.IO.File.Exists(oldimagepath))
-                //        {
-                //            System.IO.File.Delete(oldimagepath);
-                //        }
-                //    }
-                //    using (var filestrme = new FileStream(Path.Combine(productPath, filename), FileMode.Create))
-                //    {
-                //        file.CopyTo(filestrme);
-                //    }
-
-                //    ProductVM.Product.ImageUrl = @"\images\product\" + filename;
-                //}
-
 
 
                 if (ProductVM.Product.Id == 0)
@@ -102,6 +79,45 @@ namespace BookSIte.Areas.Admin.Controllers
                     TempData["Update"] = $"Product Has Updateded";
                 }
                 _Unit.savechanges();
+
+                string wwwRootPath = _WebHostEnvironment.WebRootPath;
+                if (files!= null)
+                {
+
+
+
+                    foreach (IFormFile file in files)
+                    {
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string productPath = @"images\products\product-" + ProductVM.Product.Id;
+                        string finalPath = Path.Combine(wwwRootPath, productPath);
+
+                        if (!Directory.Exists(finalPath))
+                            Directory.CreateDirectory(finalPath);
+
+                        using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+
+                        ProductImage productImage = new()
+                        {
+                            imageUrl = @"\" + productPath + @"\" + fileName,
+                            ProductId = ProductVM.Product.Id,
+                        };
+
+                        if (ProductVM.Product.ProductImages == null)
+                            ProductVM.Product.ProductImages = new List<ProductImage>();
+
+                        ProductVM.Product.ProductImages.Add(productImage);
+
+                    }
+                }
+                _Unit.ProductRepo.Update(ProductVM.Product);
+                _Unit.savechanges();
+
+
+
                 return RedirectToAction("Index");
 
             }
@@ -113,8 +129,34 @@ namespace BookSIte.Areas.Admin.Controllers
 
             return View(ProductVM);
         }
+     
+  
+        public IActionResult DeleteImage(int imageId)
+        {
+            var Imagetodelete = _Unit.ProductImageRepo.Get(a => a.Id == imageId);
+
+            var proudectId = _Unit.ProductRepo.Get(a => a.Id == Imagetodelete.ProductId);
+            if (Imagetodelete != null)
+            {
+                var oldimagepath = Path.Combine(_WebHostEnvironment.WebRootPath, Imagetodelete.imageUrl.TrimStart('\\'));
+
+                if (System.IO.File.Exists(oldimagepath))
+                {
+                    System.IO.File.Delete(oldimagepath);
+                }
+
+                _Unit.ProductImageRepo.Remove(Imagetodelete);
+                _Unit.savechanges();
+                TempData["Delete"] = " Image Has Deleteded";
+            }
 
 
+
+
+
+
+            return RedirectToAction(nameof(Upsert), new { id = proudectId.Id });
+        }
 
         [HttpDelete]
         public IActionResult Delete(int id)
