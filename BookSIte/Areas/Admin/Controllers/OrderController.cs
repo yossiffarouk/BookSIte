@@ -116,7 +116,7 @@ namespace BookSIte.Areas.Admin.Controllers
 
 
 
-            if (User.IsInRole(SD.Role_User_Company))
+            if (!User.IsInRole(SD.Role_User_Admin))
             {
                 var ClaimIdentity = (ClaimsIdentity)User.Identity;
                 var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;

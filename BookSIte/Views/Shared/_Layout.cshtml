@@ -27,11 +27,19 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link " asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
+                        </li> 
+                        @if(User.IsInRole(SD.Role_User_Admin)){
                         <li class="nav-item">
-                            <a class="nav-link " asp-area="Admin" asp-controller="order" asp-action="index">Order Mangment</a>
-                        </li>
-                 @if(User.IsInRole(SD.Role_User_Admin)){ 
+                            <a class="nav-link " asp-area="Admin" asp-controller="order" asp-action="index">Orders Mangament</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link " asp-area="Admin" asp-controller="order" asp-action="index">My Orders</a>
+                            </li>
+                        }
+                        @if(User.IsInRole(SD.Role_User_Admin)){ 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Content Managment
