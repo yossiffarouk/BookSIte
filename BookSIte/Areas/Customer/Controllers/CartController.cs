@@ -11,6 +11,8 @@ using System.Security.Claims;
 namespace BookSIte.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
+
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unit;
@@ -25,7 +27,6 @@ namespace BookSIte.Areas.Customer.Controllers
 
 
 		}
-        [Authorize]
         public IActionResult Index()
         {
             var ClaimIdentity = (ClaimsIdentity)User.Identity;
@@ -105,6 +106,11 @@ namespace BookSIte.Areas.Customer.Controllers
 				ShoppingCartsList = _unit.ShoppinCartRepo.GetAll("Product", u => u.ApplicationsUserId == userId),
 				OrderHeaders = new()
 			};
+
+            if (ShoppingCartVM.ShoppingCartsList.Count() == 0)
+            {
+                return RedirectToAction(nameof(Index));
+            }
 
 			ShoppingCartVM.OrderHeaders.ApplicationUser = _unit.ApplicationRepo.Get(u => u.Id == userId);
 
