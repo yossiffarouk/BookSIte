@@ -1,9 +1,11 @@
 ﻿using BookkStore.Utility;
 using BookSite.DataAccess.Repository.Unitofwork;
+using BookStore.Models;
 using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using Stripe.Checkout;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -125,6 +127,85 @@ namespace BookSIte.Areas.Admin.Controllers
             TempData["Delete"] = $"Order with id : {orderVM.Header.Id} Was  Cancelled";
             return RedirectToAction(nameof(Details), new { orderId = orderVM.Header.Id });
         }
+
+
+        [ActionName("Details")]
+        [HttpPost]
+        public IActionResult Details_PAY_NOW()
+        {
+            orderVM.Header = _Unit.OrderHeaderRepo
+                .Get(u => u.Id == orderVM.Header.Id, includeproperty: "ApplicationUser");
+            orderVM.OrderDetailList = _Unit.OrderDetailRepo
+                .GetAll(includeproperty: "Product", u => u.OrderHeaderId == orderVM.Header.Id);
+
+            //it is a regular customer account and we need to capture payment
+            //stripe logic
+            var domain = "https://localhost:7198/";
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = domain + $"Admin/Order/PaymentConfirmation?orderHeaderId={orderVM.Header.Id}",
+                CancelUrl = domain + $"Admin/Order/details?orderId={orderVM.Header.Id}",
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+            };
+
+            foreach (var item in orderVM.OrderDetailList)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Product.Title
+                        }
+                    },
+                    Quantity = item.Count
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            _Unit.OrderHeaderRepo.UpdateStripePaymentID(orderVM.Header.Id, session.Id, session.PaymentIntentId);
+            _Unit.savechanges();
+            
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+        }
+
+
+        //PaymentConfirmation
+        public IActionResult PaymentConfirmation(int orderHeaderId)
+        {
+
+            OrderHeader orderHeader = _Unit.OrderHeaderRepo.Get(u => u.Id == orderHeaderId);
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                //this is an order by company
+
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _Unit.OrderHeaderRepo.UpdateStripePaymentID(orderHeaderId, session.Id, session.PaymentIntentId);
+                    _Unit.OrderHeaderRepo.UpdateStatus(orderHeaderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
+                    _Unit.savechanges();
+                }
+
+
+            }
+
+
+            return View(orderHeaderId);
+        }
+
+
+
 
 
         public IActionResult getall(string status)
