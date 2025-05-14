@@ -3,6 +3,7 @@ using BookSite.DataAccess.Repository.Unitofwork;
 using BookStore.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -102,10 +103,26 @@ namespace BookSIte.Areas.Admin.Controllers
             var orderHeader = _Unit.OrderHeaderRepo.Get(u => u.Id == orderVM.Header.Id);
 
             // when add payment get way this line to refund money to clinet
-            //_Unit.OrderHeaderRepo.UpdateStatus(orderVM.Header.Id, SD.StatusCancelled , SD.StatusRefunded );
-            _Unit.OrderHeaderRepo.UpdateStatus(orderVM.Header.Id, SD.StatusCancelled , SD.StatusCancelled);
+            if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
+            {
+                var options = new RefundCreateOptions
+                {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = orderHeader.PaymentIntentId
+                };
 
-            TempData["Delete"] = $"Order with id : {orderVM.Header.Id} Has Cancelled";
+                var service = new RefundService();
+                Refund refund = service.Create(options);
+
+                _Unit.OrderHeaderRepo.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+            }
+            else
+            {
+                _Unit.OrderHeaderRepo.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
+            }
+            _Unit.savechanges();
+
+            TempData["Delete"] = $"Order with id : {orderVM.Header.Id} Was  Cancelled";
             return RedirectToAction(nameof(Details), new { orderId = orderVM.Header.Id });
         }
 
