@@ -140,7 +140,7 @@ namespace BookSIte.Areas.Admin.Controllers
 
             //it is a regular customer account and we need to capture payment
             //stripe logic
-            var domain = Request.Scheme + "//" + Request.Host.Value + "/" ;
+            var domain = Request.Scheme + "://" + Request.Host.Value + "/" ;
             var options = new SessionCreateOptions
             {
                 SuccessUrl = domain + $"Admin/Order/PaymentConfirmation?orderHeaderId={orderVM.Header.Id}",

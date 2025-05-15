@@ -33,7 +33,8 @@ namespace BookSIte.Areas.Customer.Controllers
             var ClaimIdentity = (ClaimsIdentity)User.Identity;
             var userId = ClaimIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-			ShoppingCartVM = new()
+           
+            ShoppingCartVM = new()
 			{
 				ShoppingCartsList = _unit.ShoppinCartRepo.GetAll("Product",u => u.ApplicationsUserId == userId),
 				OrderHeaders = new()
@@ -195,11 +196,11 @@ namespace BookSIte.Areas.Customer.Controllers
 
                 //it is a regular customer account and we need to capture payment
                 //stripe logic
-                var domain = Request.Scheme + "//" + Request.Host.Value + "/";
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
                 var options = new SessionCreateOptions
                 {
                     SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeaders.Id}",
-                    CancelUrl = domain + "customer/cart/index",
+                    CancelUrl = domain + $"customer/cart/OrderCancellation?id={ShoppingCartVM.OrderHeaders.Id}",
                     LineItems = new List<SessionLineItemOptions>(),
                     Mode = "payment",
                 };
@@ -275,7 +276,48 @@ namespace BookSIte.Areas.Customer.Controllers
 
         }
 
+        [HttpGet]
+        public IActionResult OrderCancellation(int id)
+        {
+            try
+            {
+                // Retrieve the order
+                var orderHeader = _unit.OrderHeaderRepo.Get(o => o.Id == id);
 
+                if (orderHeader != null)
+                {
+                    // Check if payment was actually made
+                    if (string.IsNullOrEmpty(orderHeader.PaymentIntentId))
+                    {
+                        // Delete associated order details first (if needed)
+                        var orderDetails = _unit.OrderDetailRepo.GetAll("",od => od.OrderHeaderId == id);
+                        foreach (var detail in orderDetails)
+                        {
+                            _unit.OrderDetailRepo.Remove(detail);
+                        }
+
+                        // Then delete the order header
+                        _unit.OrderHeaderRepo.Remove(orderHeader);
+                        _unit.savechanges();
+
+                        TempData["Update"] = "Order has been cancelled successfully.";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Payment was already processed. Please contact support for refund.";
+                    }
+                }
+
+                return RedirectToAction("Index", "Cart");
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                
+                TempData["Error"] = "Error occurred while cancelling the order.";
+                return RedirectToAction("Index", "Cart");
+            }
+        }
 
 
         private double GetBriceBasedOnQuntity(ShoppingCart cart)
